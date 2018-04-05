@@ -7,7 +7,7 @@
 #.PRECIOUS: %.o
 
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 LDFLAGS =
 
 # Note: -lnsl does not seem to work on Mac OS but will
@@ -15,11 +15,11 @@ LDFLAGS =
 #LIBS += -lsocket -lnsl -lrt
 LIBS += -lpthread
 
-INCLUDE = csapp.h cat_ftp.c
-OBJS = csapp.o cat_ftp.o
+INCLUDE = csapp.h get_ftp.c ls_ftp.c
+OBJS = csapp.o get_ftp.o ls_ftp.o
 INCLDIR = -I.
 
-PROGS = client ftpserveri_conc_pool
+PROGS = client serveur_esclave serveur_maitre
 
 
 
