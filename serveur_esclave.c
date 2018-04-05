@@ -9,6 +9,7 @@
 
 void get_ftp(int clientFd, char *bufCmdParamClient);
 void ls_ftp(int clientFd);
+void pwd_ftp(int clientFd);
 
 int main(int argc, char **argv)
 {
@@ -18,7 +19,7 @@ int main(int argc, char **argv)
     char client_ip_string[INET_ADDRSTRLEN];
     char client_hostname[MAX_NAME_LEN];
 
-    port = 2121;
+    port = 2122;
 
     clientlen = (socklen_t)sizeof(clientaddr);
     listenfd = Open_listenfd(port);
@@ -67,7 +68,7 @@ int main(int argc, char **argv)
 
                 ////////////////////////////////////////////
                 // CONNEXION AVEC LE CLIENT
-                int clientFd = Open_clientfd(bufIPClient, 2126); //ouverture de la connexion avec le client
+                int clientFd = Open_clientfd(bufIPClient, 2123); //ouverture de la connexion avec le client
                 //
                 ////////////////////////////////////////////
 
@@ -79,9 +80,9 @@ int main(int argc, char **argv)
                 {
                     ls_ftp(clientFd);
                 }
-                else if (strcmp(bufCmdNameClient, "pwd") == 0)
+                else if (strcmp(bufCmdNameClient, "pwd:0\n") == 0)
                 {
-                    printf("TODO : pwd\n");
+                    pwd_ftp(clientFd);
                 }
                 else if (strcmp(bufCmdNameClient, "cd") == 0)
                 {

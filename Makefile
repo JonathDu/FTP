@@ -15,8 +15,8 @@ LDFLAGS =
 #LIBS += -lsocket -lnsl -lrt
 LIBS += -lpthread
 
-INCLUDE = csapp.h get_ftp.c ls_ftp.c
-OBJS = csapp.o get_ftp.o ls_ftp.o
+INCLUDE = csapp.h get_ftp.c ls_ftp.c pwd_ftp.c
+OBJS = csapp.o get_ftp.o ls_ftp.o pwd_ftp.o
 INCLDIR = -I.
 
 PROGS = client serveur_esclave serveur_maitre

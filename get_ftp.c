@@ -29,5 +29,6 @@ void get_ftp(int clientFd, char *bufCmdParamClient)
             printf("Erreur de communication avec le client\n");
             break;
         }
+        //sleep(3);
     }
 }

@@ -6,11 +6,12 @@
 
 #define TRANSFER_SIZE 16
 
-void my_get_ftp(int serveurMaitreFd, char bufCommande[], char indiceFile[], int listenfd);
+void my_get_ftp(char bufCommande[], char indiceFile[], int listenfd);
 
 size_t totalBytesTransfert = 0;
 char *host, bufCommande[MAXLINE], *bufFileName, *bufCmdName;
 int port;
+int serveurMaitreFd, serveurEsclaveFd;
 
 char *substring(char *string, int position, int length)
 {
@@ -49,12 +50,12 @@ int file_exist(const char *filename)
 
 void handler(int sig)
 {
-    printf("Pour quitter, saisir : bye");
+    close(serveurEsclaveFd);
+    close(serveurMaitreFd);
 }
 
 int main(int argc, char **argv)
 {
-    int serveurMaitreFd;
 
     bufFileName = malloc(sizeof(char) * MAXLINE);
     bufCmdName = malloc(sizeof(char) * MAXLINE);
@@ -70,8 +71,7 @@ int main(int argc, char **argv)
     host = argv[1];
     port = 2121;
 
-    serveurMaitreFd = Open_clientfd(host, port); //ouverture de la connexion
-    int listenfd = Open_listenfd(2122);          //ouverture du socket de reception de données (avec serveur esclave, sur le port 2122)
+    int listenfd = Open_listenfd(2123);          //ouverture du socket de reception de données (avec serveur esclave, sur le port 2122)
 
     printf("Client connected to server OS\n");
 
@@ -94,7 +94,8 @@ int main(int argc, char **argv)
             fclose(frecup);
             char bufCmd[MAXLINE];
             sprintf(bufCmd, "%s %s\n", "get", bufRealFileName);
-            my_get_ftp(serveurMaitreFd, bufCmd, indiceFile, listenfd);
+            printf("Fin de transfert de %s... \n", bufRealFileName);
+            my_get_ftp(bufCmd, indiceFile, listenfd);
         }
     }
     //
@@ -111,14 +112,13 @@ int main(int argc, char **argv)
         {
             if (strcmp(bufCommande, "bye\n") == 0)
             {
-                Close(serveurMaitreFd);
                 Close(listenfd);
                 exit(0);
             }
             indiceFile[0] = '0';
             indiceFile[1] = '\n';
 
-            my_get_ftp(serveurMaitreFd, bufCommande, indiceFile, listenfd);
+            my_get_ftp(bufCommande, indiceFile, listenfd);
         }
         //
         /////////////////////////////////////////////
@@ -128,8 +128,10 @@ int main(int argc, char **argv)
     exit(0);
 }
 
-void my_get_ftp(int serveurMaitreFd, char bufCommande[], char indiceFile[], int listenfd)
+void my_get_ftp(char bufCommande[], char indiceFile[], int listenfd)
 {
+    serveurMaitreFd = Open_clientfd(host, port); //ouverture de la connexion
+
     clock_t t1, t2;
     float temps;
     char bufResContent[MAXLINE];
@@ -149,7 +151,7 @@ void my_get_ftp(int serveurMaitreFd, char bufCommande[], char indiceFile[], int 
     struct sockaddr_in clientaddr;
     socklen_t clientlen = (socklen_t)sizeof(clientaddr);
 
-    int serveurEsclaveFd = Accept(listenfd, (SA *)&clientaddr, &clientlen); //attend la connexion d'un serveur esclave
+    serveurEsclaveFd = Accept(listenfd, (SA *)&clientaddr, &clientlen); //attend la connexion d'un serveur esclave
     t1 = clock();                                //enregistre l'heure de début du transfert
     char *temp = malloc(sizeof(char) * MAXLINE); //recupération du nom du fichier
     bufCmdName = strtok(bufCommande, " ");       //recupération du nom de la commande
@@ -183,6 +185,7 @@ void my_get_ftp(int serveurMaitreFd, char bufCommande[], char indiceFile[], int 
     printf("Transfer successfully complete.\n");
     printf("%li bytes received in %f seconds (%f Kbytes/s).\n", totalBytesTransfert, temps, ((float)(totalBytesTransfert / 1000) / temps));
     Close(serveurEsclaveFd);
+    Close(serveurMaitreFd);
     //
     //////////////////////////////////////////////////////////
 }

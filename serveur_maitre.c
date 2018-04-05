@@ -1,4 +1,5 @@
 #include "csapp.h"
+#include<pthread.h>
 
 #define MAX_NAME_LEN 256
 #define NB_SERVEUR_ESCLAVE 2
@@ -17,7 +18,7 @@ int main(int argc, char **argv)
     char bufCmdClient[MAXLINE];
     char bufIPClient[MAXLINE];
 
-    if (argc != 4)
+    if (argc != 3)
     {
         fprintf(stderr, "usage: %s <ip_serv_esclave_1> <ip_serv_esclave_2>\n", argv[0]);
         exit(0);
@@ -62,8 +63,14 @@ int main(int argc, char **argv)
 
                 ////////////////////////////////////////////
                 //SELECTION DU SERVEUR ESCLAVE
-                serveurEsclaveId = (serveurEsclaveId + 1) % NB_SERVEUR_ESCLAVE; //round robin
-                int serveurEsclaveFd = Open_clientfd(listIPEsclaves[serveurEsclaveId], 2121);  //ouverture de la connexion avec un serveur esclave
+                serveurEsclaveId ++;
+                if(serveurEsclaveId >= NB_SERVEUR_ESCLAVE){
+                    serveurEsclaveId = serveurEsclaveId - NB_SERVEUR_ESCLAVE;
+                }
+                printf("%i\n", serveurEsclaveId);
+
+                //(serveurEsclaveId + 1) % (NB_SERVEUR_ESCLAVE-1); //round robin
+                int serveurEsclaveFd = Open_clientfd(listIPEsclaves[serveurEsclaveId], 2122);  //ouverture de la connexion avec un serveur esclave
                 printf("\tMAITRE : \t Fd serveur esclave choisit : \n\t\t\t\t - FD : %i\n\t\t\t\t - Num list: %i\n", serveurEsclaveFd, serveurEsclaveId);
                 //
                 ////////////////////////////////////////////
